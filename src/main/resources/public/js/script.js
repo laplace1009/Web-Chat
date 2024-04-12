@@ -9,7 +9,6 @@ class Client {
                 this.userName = message.userName
             }
 
-            Client.handleMessage(message)
             Client.handleMessage(`${message.userName}: ${message.message}`)
         }
         this.webSocket.onclose = (e) => {
@@ -57,9 +56,6 @@ if (root) {
     const textElem = root.querySelector('input')
     buttonElem.addEventListener('click', (e) => {
         e.preventDefault()
-        const message = JSON.stringify(new Message(ws.userName, textElem.value))
-        console.log(`send message: ${message}`)
-        ws.webSocket.send(message)
         if (ws.webSocket.readyState == WebSocket.OPEN) {
             const message = JSON.stringify(new Message(ws.userName, textElem.value))
             console.log(`send message: ${message}`)
