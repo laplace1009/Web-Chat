@@ -1,31 +1,28 @@
 package actors
 
-import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.{ActorSystem, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 
 object ClientActor {
   sealed trait Command
-  case object Disconnect extends Command
-  case class SendMessage(message: String) extends Command
+  case class SendMessage(message: String, userName: String) extends Command
   case class RecvMessage(message: String) extends Command
+  case object Disconnect extends Command
 
-  def apply(server: ActorRef[ServerActor.Command]): Behavior[Command] = Behaviors.receive { (context, message) =>
-    message match {
-      case SendMessage(message) =>
-        context.log.info(s"Sending message: $message")
-        server ! ServerActor.Broadcast(message)
-        Behaviors.same
-      case RecvMessage(message) =>
-        context.log.info(s"Recving message: $message")
-        Behaviors.same
-      case Disconnect =>
-        context.log.info(s"Disconnect Server")
-        Behaviors.stopped
-      case _ =>
-        context.log.warn(s"Don't reach this case")
-        Behaviors.unhandled
-    }
+  def apply(userName: String)(implicit actorSystem: ActorSystem[ServerActor.Command]): Behavior[Command] = Behaviors.setup {
+    context =>
+      Behaviors.receiveMessage {
+        case SendMessage(message, userName) =>
+          println(s"Client Actor SendMsg: $message")
+          Behaviors.same
+        case RecvMessage(message) =>
+          println(s"Client Actor RecvMsg: $message")
+          actorSystem ! ServerActor.Broadcast(message)
+          Behaviors.same
+        case Disconnect =>
+          println("Disconnect ClientActor")
+          Behaviors.stopped
+      }
   }
 }
 
-final case class ClientSession(nickName: String, clientActor: ActorRef[ClientActor.Command])

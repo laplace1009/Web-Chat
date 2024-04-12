@@ -13,8 +13,10 @@ val AkkaVersion = "2.9.2"
 val AkkaHttpVersion = "10.6.1"
 
 libraryDependencies ++= Seq(
+  "com.typesafe.akka" %% "akka-actor" % AkkaVersion,
   "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
+  "com.typesafe.akka" %% "akka-stream-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion,
   "ch.qos.logback" % "logback-classic" % "1.2.3",
 )
