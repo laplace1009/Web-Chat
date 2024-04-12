@@ -1,13 +1,14 @@
 package actors
 
 import akka.actor.typed.{ActorRef, Behavior}
-import akka.actor.typed.scaladsl.{Behaviors}
+import akka.actor.typed.scaladsl.Behaviors
 
 
 object ServerActor {
   sealed trait Command
   case class Connect(clientActors: (ActorRef[ClientActor.Command], ActorRef[ClientActor.Command])) extends Command
-  case class Disconnect(clientId: String) extends Command
+  case class Disconnect(clientActor: ActorRef[ClientActor.Command]) extends Command
+  case class ChangeUserName(clientActor: ActorRef[ClientActor.Command], message: String) extends Command
   case class Broadcast(message: String) extends Command
 
   def apply(): Behavior[Command] = Behaviors.setup { context =>
@@ -15,19 +16,27 @@ object ServerActor {
     var userId = 0
     Behaviors.receiveMessage {
       case Connect(clientActors) =>
-        clients = clients + (userId.toString() -> clientActors)
-        userId += 1
-        println("New ClientActor created.")
+        clients = clients + (userId.toString -> clientActors)
+        userId = userId + 1
         Behaviors.same
-      case Disconnect(clientId) =>
-//        clients.get(clientId).foreach(context.stop)
-//        clients = clients - clientId
-        println(s"ClientActor with ID $clientId removed")
+      case Disconnect(clientActor) =>
+        clients.collectFirst {
+          case (id, (actor1, actor2)) if actor1 == clientActor || actor2 == clientActor =>
+            actor1 ! ClientActor.ActorStopped
+            actor2 ! ClientActor.ActorStopped
+            clients = clients - id
+        }
+        context.log.info("Disconnect Successful")
+        Behaviors.same
+      case ChangeUserName(clientActor, message) => 
+        clients.collectFirst {
+          case (id, (recvActor, sendActor)) if recvActor == clientActor || sendActor == clientActor =>
+            sendActor ! ClientActor.SendMessage(message)
+        }
         Behaviors.same
       case Broadcast(message) =>
-          println(s"Server broadcast message: $message")
-          clients.values.foreach { (recv, send) =>
-            send ! ClientActor.SendMessage(message, "user1")
+          clients.values.foreach { (_, send) =>
+            send ! ClientActor.SendMessage(message)
           }
           Behaviors.same
       }

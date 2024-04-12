@@ -1,0 +1,16 @@
+#basis {
+    display: flex;
+}
+
+#chat-div {
+    width: 600px;
+    height: 700px;
+    border: black 1px double;
+}
+
+#user-div {
+    width: 300px;
+    height: 700px;
+    border: black 1px double;
+    border-left-color: white;
+}

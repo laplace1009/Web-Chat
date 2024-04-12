@@ -1,4 +1,4 @@
-import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.concurrent.duration.DurationInt
 import scala.io.StdIn
 import akka.util.Timeout
 import akka.actor.typed.ActorSystem
@@ -15,7 +15,7 @@ def main(): Unit = {
   val routes = StaticRoute.jsRoute ~ ChatRoute.topLevelRoute ~ WebSocketRoute.webSocketRoute
 
   val serverFuture = Http().newServerAt("localhost", 8080).bind(routes)
-  println(s"Server now online. Please navigate to http://localhost:8080/\nPress RETURN to stop...")
+  println(s"Server Connect address: http://localhost:8080/\nPress RETURN to stop...")
   StdIn.readLine()
   serverFuture
     .flatMap(_.unbind())
