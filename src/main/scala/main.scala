@@ -12,7 +12,7 @@ def main(): Unit = {
   implicit val system: ActorSystem[ServerActor.Command] = ActorSystem(ServerActor(), "ChatServer")
   implicit val executionContext = system.executionContext
   val timeout = Timeout(5.seconds)
-  val routes = StaticRoute.jsRoute ~ ChatRoute.topLevelRoute ~ WebSocketRoute.webSocketRoute
+  val routes = StaticRoute.jsRoute ~ StaticRoute.cssRoute ~ ChatRoute.topLevelRoute ~ WebSocketRoute.webSocketRoute
 
   val serverFuture = Http().newServerAt("localhost", 8080).bind(routes)
   println(s"Server Connect address: http://localhost:8080/\nPress RETURN to stop...")

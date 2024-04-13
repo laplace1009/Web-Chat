@@ -3,10 +3,19 @@ package routes
 import akka.http.scaladsl.server.Directives._
 
 object StaticRoute {
-  lazy val jsRoute =
+  val jsRoute =
     pathPrefix("js") {
       get {
         getFromResourceDirectory("public/js")
       }
     }
+    
+  val cssRoute =
+    pathPrefix("css") {
+      get {
+        getFromResourceDirectory("public/css")
+      }
+    }  
+    
+    
 }

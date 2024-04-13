@@ -3,13 +3,14 @@ package routes
 import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.typed.scaladsl.{ActorSink, ActorSource}
-import akka.stream.{OverflowStrategy}
+import akka.stream.OverflowStrategy
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
 import actors.{ClientActor, ServerActor}
 import scala.util.Random
 import io.circe.parser._
+import io.circe.syntax._
 import io.circe.generic.auto._
 
 object WebSocketRoute {
@@ -22,23 +23,17 @@ object WebSocketRoute {
     }
   }
 }
-
-case class ChatMessage(userName: String, message: String)
-
+case class ChatMessage(changeUser: Boolean, changeList: Boolean, userName: String, message: String, userList: Array[String])
 def webSocketFlow(implicit system: ActorSystem[ServerActor.Command]): (ActorRef[ClientActor.Command], Flow[Message, Message, _]) = {
-  val userName = Random.nextLong().toString
+  val userName = "user" + Random.nextLong().toString
   val clientActor: ActorRef[ClientActor.Command] = system.systemActorOf(ClientActor(userName), userName + "clientActor")
   val incomingMessage: Sink[Message, _] = Flow[Message].collect {
     case TextMessage.Strict(text: String) =>
       decode[ChatMessage](text).toOption.flatMap {
-        case ChatMessage(_, message) if message.startsWith("/n ") =>
-          val arr = message.split(" ")
-          if (arr.length == 2) {
-            Some(ClientActor.SetUserName(arr(1)))
-          } else {
-            Some(ClientActor.NotBehavior)
-          }
-        case ChatMessage(userName, message) =>
+        case ChatMessage(true, _, _, message, _) =>
+          Some(ClientActor.SetUserName(message))
+        case ChatMessage(false, _, _, _, _) =>
+          println(text)
           Some(ClientActor.RecvMessage(text))
         case _ =>
           None
@@ -57,11 +52,14 @@ def webSocketFlow(implicit system: ActorSystem[ServerActor.Command]): (ActorRef[
     bufferSize = 10,
     overflowStrategy = OverflowStrategy.dropHead
   ).mapMaterializedValue { outgoingActor =>
-    system ! ServerActor.Connect((clientActor, outgoingActor))
+    val json = ChatMessage(true, false, "", userName, Array()).asJson.noSpaces
+    system ! ServerActor.Connect(userName, (clientActor, outgoingActor))
+    outgoingActor ! ClientActor.SetUserName(json)
     outgoingActor
   }.collect {
     case ClientActor.SendMessage(message) =>
-      println(message)
+      TextMessage(message)
+    case ClientActor.SetUserName(message) =>
       TextMessage(message)
   }
 

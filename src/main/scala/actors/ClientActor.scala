@@ -24,9 +24,8 @@ object ClientActor {
           actorSystem ! ServerActor.Broadcast(message)
           Behaviors.same
         case SetUserName(newUserName) =>
-          val newClient = ChatMessage(newUserName, s"/n $userName -> $newUserName")
-          val json = newClient.asJson.noSpaces
-          actorSystem ! ServerActor.ChangeUserName(context.self, json)
+          val newClient = ChatMessage(true, false, "", newUserName, Array())
+          actorSystem ! ServerActor.ChangeUserName(userName, newUserName, context.self, newClient)
           behavior(newUserName)
         case ActorStopped =>
           println("Stopped Actor")

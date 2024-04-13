@@ -2,22 +2,25 @@ package actors
 
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
+import io.circe.syntax.*
+import io.circe.generic.auto.*
+import routes.ChatMessage
 
 
 object ServerActor {
   sealed trait Command
-  case class Connect(clientActors: (ActorRef[ClientActor.Command], ActorRef[ClientActor.Command])) extends Command
+  case class Connect(userName: String, clientActors: (ActorRef[ClientActor.Command], ActorRef[ClientActor.Command])) extends Command
   case class Disconnect(clientActor: ActorRef[ClientActor.Command]) extends Command
-  case class ChangeUserName(clientActor: ActorRef[ClientActor.Command], message: String) extends Command
+  case class ChangeUserName(prevUserName: String, newUserName: String, clientActor: ActorRef[ClientActor.Command], message: ChatMessage) extends Command
+  case object GetUserList extends Command
   case class Broadcast(message: String) extends Command
 
   def apply(): Behavior[Command] = Behaviors.setup { context =>
     var clients: Map[String, (ActorRef[ClientActor.Command], ActorRef[ClientActor.Command])] = Map.empty
-    var userId = 0
     Behaviors.receiveMessage {
-      case Connect(clientActors) =>
-        clients = clients + (userId.toString -> clientActors)
-        userId = userId + 1
+      case Connect(userName, clientActors) =>
+        clients = clients + (userName -> clientActors)
+        context.self ! ServerActor.GetUserList
         Behaviors.same
       case Disconnect(clientActor) =>
         clients.collectFirst {
@@ -28,11 +31,22 @@ object ServerActor {
         }
         context.log.info("Disconnect Successful")
         Behaviors.same
-      case ChangeUserName(clientActor, message) => 
-        clients.collectFirst {
-          case (id, (recvActor, sendActor)) if recvActor == clientActor || sendActor == clientActor =>
-            sendActor ! ClientActor.SendMessage(message)
-        }
+      case ChangeUserName(prevUserName, newUserName, clientActor, chatMessage: ChatMessage) =>
+        val copyClient = clients(prevUserName)
+        clients -= prevUserName
+        clients = clients + (newUserName -> copyClient)
+        val newClientMessage: ChatMessage = ChatMessage(true, false, prevUserName, chatMessage.message, Array())
+        val clientJson = newClientMessage.asJson.noSpaces
+        copyClient._2 ! ClientActor.SendMessage(clientJson)
+        context.self ! ServerActor.GetUserList
+        Behaviors.same
+      case GetUserList =>
+        val userNameList = clients.map { (userName, _) =>
+          userName
+        }.toArray
+        val newBroadcastMessage: ChatMessage = ChatMessage(false, true, "server", "", userNameList)
+        val broadcastJson = newBroadcastMessage.asJson.noSpaces
+        context.self ! ServerActor.Broadcast(broadcastJson)
         Behaviors.same
       case Broadcast(message) =>
           clients.values.foreach { (_, send) =>
@@ -41,7 +55,6 @@ object ServerActor {
           Behaviors.same
       }
   }
-
 }
 
 
