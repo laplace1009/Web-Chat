@@ -15,7 +15,7 @@ def main(): Unit = {
   val routes = StaticRoute.jsRoute ~ StaticRoute.cssRoute ~ ChatRoute.topLevelRoute ~ WebSocketRoute.webSocketRoute
 
   val serverFuture = Http().newServerAt("0.0.0.0", 8080).bind(routes)
-  println(s"Server Connect address: http://localhost:8080/\nPress RETURN to stop...")
+  println(s"Press RETURN to stop...")
   StdIn.readLine()
   serverFuture
     .flatMap(_.unbind())
