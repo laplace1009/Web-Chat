@@ -30,6 +30,7 @@ object ServerActor {
             clients = clients - id
         }
         context.log.info("Disconnect Successful")
+        context.self ! ServerActor.GetUserList
         Behaviors.same
       case ChangeUserName(prevUserName, newUserName, clientActor, chatMessage: ChatMessage) =>
         val copyClient = clients(prevUserName)
