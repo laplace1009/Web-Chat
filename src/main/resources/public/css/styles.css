@@ -1,0 +1,108 @@
+body, html {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-color: #f0f8ff; /* 파스텔톤 스카이 블루 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+header {
+    width: 100%;
+    background-color: #ffcccb; /* 파스텔 핑크 */
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4px);
+}
+
+h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+#chat-app {
+    display: flex;
+    width: 800px;
+    height: 500px;
+    margin-top: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    overflow: hidden;
+    backdrop-filter: blur(8px); /* 배경 블러 효과 */
+}
+
+#chat-container {
+    flex-grow: 2;
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid #b0e0e6; /* 파스텔톤 라이트 블루 */
+}
+
+#chat-box {
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto;
+    background-color: rgba(255, 250, 205, 0.7); /* 파스텔 레몬 */
+}
+
+#messages {
+    display: flex;
+    flex-direction: column;
+}
+
+#message-form {
+    display: flex;
+    padding: 10px;
+    background: rgba(245, 222, 179, 0.9); /* 파스텔톤 우드 */
+}
+
+#message-input {
+    flex-grow: 1;
+    border: 2px solid #b0e0e6;
+    padding: 10px;
+    border-radius: 4px;
+    background: white;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    background-color: #add8e6; /* 파스텔 라이트 블루 */
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #87ceeb;
+}
+
+#message-input:focus, button:focus {
+    outline: none;
+}
+
+#user-list {
+    width: 250px;
+    background-color: rgba(173, 216, 230, 0.8); /* 파스텔 라이트 블루 */
+    color: #333;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+#user-list h3 {
+    margin-top: 0;
+}
+
+#user-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#user-list li {
+    margin: 8px 0;
+}

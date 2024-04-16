@@ -25,15 +25,15 @@ object WebSocketRoute {
 }
 case class ChatMessage(changeUser: Boolean, changeList: Boolean, userName: String, message: String, userList: Array[String])
 def webSocketFlow(implicit system: ActorSystem[ServerActor.Command]): (ActorRef[ClientActor.Command], Flow[Message, Message, _]) = {
-  val userName = "user" + Random.nextLong().toString
+  val limitRandomNumber = 100000000
+  val userName = "user" + Random.nextLong(limitRandomNumber).toString
   val clientActor: ActorRef[ClientActor.Command] = system.systemActorOf(ClientActor(userName), userName + "clientActor")
   val incomingMessage: Sink[Message, _] = Flow[Message].collect {
     case TextMessage.Strict(text: String) =>
       decode[ChatMessage](text).toOption.flatMap {
         case ChatMessage(true, _, _, message, _) =>
           Some(ClientActor.SetUserName(message))
-        case ChatMessage(false, _, _, _, _) =>
-          println(text)
+        case ChatMessage(_, _, _, _, _) =>
           Some(ClientActor.RecvMessage(text))
         case _ =>
           None
