@@ -39,7 +39,7 @@ class Client {
 }
 
 
-const ws = new Client("ws://230.130.153.247/ws", 'userName123')
+const ws = new Client("ws://230.130.153.247:8080/ws", 'userName123')
 const buttonElem = document.querySelector('button');
 const textElem = document.getElementById('message-input')
 
