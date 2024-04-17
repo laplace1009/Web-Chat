@@ -14,7 +14,7 @@ def main(): Unit = {
   val timeout = Timeout(5.seconds)
   val routes = StaticRoute.jsRoute ~ StaticRoute.cssRoute ~ ChatRoute.topLevelRoute ~ WebSocketRoute.webSocketRoute
 
-  val serverFuture = Http().newServerAt("localhost", 8080).bind(routes)
+  val serverFuture = Http().newServerAt("0.0.0.0", 8080).bind(routes)
   println(s"Press RETURN to stop...")
   StdIn.readLine()
   serverFuture
