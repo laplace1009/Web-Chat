@@ -1,17 +1,13 @@
 # Project Name: Web-Chat
 
-### using openjdk 17
+## openjdk 17
 
-### Language: Scala (version 3.4.1)
-### why? 
-* jvm 계열의 언어를 하나 익히기 위함
-* 함수형프로그래밍 언어를 사용하고싶어서
-* 사용하고 싶은 프레임워크가 있기때문
-
+### Scala (version 3.4.1)
 ### Framework
 * Akka-typed (version: 2.9.2)
 * Akka-stream(version: 2.9.2)
 * Akka-http(version: 10.6.1)
-### why?
-* Actor Model
-* Socket프로그래밍은 해봤으니 WebSocket 프로그래밍을 해보고 싶어서
+
+jvm계열의 언어를 하나 익히고 싶고, 함수형이 였으면 더 좋을꺼 같아서 scala를 선택했고,
+병렬 프로그래밍, [액터모델](https://ko.wikipedia.org/wiki/%EC%95%A1%ED%84%B0_%EB%AA%A8%EB%8D%B8)을 사용하기 위해 akka를 선택했고,
+가장 간단하고, 액터모델을 이용하기 좋을꺼같아서 웹채팅을 구현 하였습니다.
